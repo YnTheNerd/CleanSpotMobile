@@ -18,12 +18,13 @@ Une application mobile React Native pour signaler les dépôts sauvages d'ordure
 - **Expo Router** pour la navigation
 - **Expo Image Picker** pour les photos
 - **Expo Location** pour la géolocalisation
+- Open Street Map pour la carte
 
 ## Installation
 
-1. **Cloner le projet** (déjà fait)
+1. **Cloner le projet** 
 
-2. **Installer les dépendances** (déjà fait)
+2. **Installer les dépendances** 
    ```bash
    npm install
    ```
@@ -33,11 +34,11 @@ Une application mobile React Native pour signaler les dépôts sauvages d'ordure
    - Activer Authentication (Email/Password)
    - Créer une base de données Firestore
    - Activer Storage
-   - Remplacer les valeurs dans `config/firebaseConfig.js` par vos vraies clés
+   - Remplacer les valeurs dans `config/firebaseConfig.js` par vos vraies clés ;)
 
 4. **Lancer l'application**
    ```bash
-   npm start
+   npx expo start or npx expo start --clear
    ```
 
 ## Configuration Firebase
