@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidSignal() {
+      let requiredFields = [
+        'description',
+        'imageUrl',
+        'location',
+        'userId',
+        'userEmail',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ];
+      
+      let hasAllFields = requiredFields.hasAll(request.resource.data.keys());
+      let validLocation = request.resource.data.location.latitude is number 
+                         && request.resource.data.location.longitude is number;
+      let validStatus = request.resource.data.status in ['pending', 'in_progress', 'resolved'];
+      
+      // Validate base64 image URL (must start with data:image/)
+      let validImageUrl = request.resource.data.imageUrl.matches('^data:image/.*base64,.*');
+      
+      return hasAllFields && validLocation && validStatus && validImageUrl;
+    }
+    
+    // Signals collection rules
+    match /signals/{signalId} {
+      // Create: User must be authenticated and data must be valid
+      allow create: if isAuthenticated() 
+                   && isOwner(request.resource.data.userId)
+                   && isValidSignal();
+      
+      // Read: User can read their own signals or if they're an admin
+      allow read: if isAuthenticated() 
+                 && (isOwner(resource.data.userId) || request.auth.token.admin == true);
+      
+      // Update: Only admins can update status and notes
+      allow update: if isAuthenticated() 
+                   && (
+                     // Admin can update all fields
+                     request.auth.token.admin == true
+                     ||
+                     // Regular users can only update their own signals' description
+                     (isOwner(resource.data.userId) 
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['description']))
+                   );
+      
+      // Delete: Only admins can delete signals
+      allow delete: if isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // User stats collection rules
+    match /userStats/{userId} {
+      // Users can read their own stats
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Only the system (through Cloud Functions) or admins should update stats
+      allow write: if isAuthenticated() 
+                  && (request.auth.token.admin == true 
+                      || request.auth.token.system == true);
+    }
+  }
+}

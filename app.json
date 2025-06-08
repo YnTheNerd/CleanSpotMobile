@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "cleanspot",
     "name": "CleanSpotMobile",
     "slug": "CleanSpotMobile",
     "version": "1.0.0",
@@ -24,6 +25,22 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'application accède à vos photos pour vous permettre d'ajouter des images à vos signalements.",
+          "cameraPermission": "L'application accède à votre appareil photo pour prendre des photos de signalements.",
+          "microphonePermission": false
+        }
+      ],      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "L'application utilise la localisation pour géolocaliser vos signalements de dépôts sauvages."
+        }
+      ]
+    ]
   }
 }
